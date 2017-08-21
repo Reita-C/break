@@ -1,0 +1,567 @@
+/*
+*iを押すとスタート
+*jでバーが右に、fでバーが左に
+*kとdで素早く移動
+*hとgでボールがバーを反射する角度が変えられます
+*/
+#include "DxLib.h"
+#define mybox_Ly 430
+#define mybox_Ry 440
+
+
+void ball(void);
+void mybox(void);
+void atari(void);
+void mykey_R(void);
+void mykey_L(void);
+void speedkey_R(void);
+void speedkey_L(void);
+void brock1(void);
+void brock2(void);
+void brock3(void);
+void brock4(void);
+void brock5(void);
+void brock6(void);
+void brock7(void);
+void brock8(void);
+void brock9(void);
+void brock10(void);
+void brock11(void);
+void brock12(void);
+void brock13(void);
+void brock14(void);
+void brock15(void);
+void Hbrock(void);
+void Hbrock1(void);
+void Hbrock2(void);
+void Hbrock3(void);
+void Hbrock4(void);
+void Hbrock5(void);
+void Hbrock6(void);
+void Hbrock7(void);
+
+int all_get_key(void);
+
+int in0 = 0;
+int in1 = 0;
+int in2 = 0;
+int in3 = 0;
+int in4 = 0;
+int in5 = 0;
+int in6 = 0;
+int in7 = 0;
+int in8 = 0;
+int in9 = 0;
+int in10 = 0;
+int in11 = 0;
+int in12 = 0;
+int in13 = 0;
+int in14 = 0;
+int in15 = 0;
+int Hin = 0;
+int Hin1 = 0;
+int Hin2 = 0;
+int Hin3 = 0;
+int Hin4 = 0;
+int Hin5 = 0;
+int Hin6 = 0;
+int Hin7 = 0;
+int key[256];
+int gamecount;
+double ball_x = 0;
+double ball_y = 430;
+int x_houkou = 0;
+int y_houkou = 0;
+int mybox_Lx = 0;
+int mybox_Rx = 60;
+int move;
+int a = 0;
+double ballspeed = 3;
+double kakudo = 0;
+int x_boxhoukou = 0;
+int y_boxhoukou = 0;
+
+
+int Color_White = GetColor(255, 255, 255);
+
+
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+
+	ChangeWindowMode(TRUE);
+	DxLib_Init();
+	SetDrawScreen(DX_SCREEN_BACK);
+
+	while (ScreenFlip() == 0 && ProcessMessage() == 0
+		&& ClearDrawScreen() == 0 && all_get_key() == 0 && CheckHitKey(KEY_INPUT_I) == 0) {
+
+		brock1();
+		brock2();
+		brock3();
+		brock4();
+		brock5();
+		brock6();
+		brock9();
+		brock10();
+		brock11();
+		brock12();
+		brock13();
+		brock14();
+		Hbrock();
+		mybox();
+		mykey_R();
+		speedkey_R();
+		mykey_L();
+		speedkey_L();
+
+	}
+
+
+	while (ScreenFlip() == 0 && ProcessMessage() == 0
+		&& ClearDrawScreen() == 0 && all_get_key() == 0 /*&& ball_y < 480*/) {
+
+
+		ballspeed += 0.001;
+
+		mybox();
+		mykey_R();
+		speedkey_R();
+		mykey_L();
+		speedkey_L();
+		brock1();
+		brock2();
+		brock3();
+		brock4();
+		brock5();
+		brock6();
+		brock9();
+		brock10();
+		brock11();
+		brock12();
+		brock13();
+		brock14();
+		Hbrock();
+		atari();
+		ball();
+
+	}
+	WaitKey();
+	DxLib_End();
+	return 0;
+}
+
+void mybox(void) {
+
+	DrawBox(mybox_Lx + move, mybox_Ly, mybox_Rx + move, mybox_Ry, GetColor(0, 255, 0), TRUE);
+
+}
+
+void ball(void) {
+
+	DrawCircle(ball_x, ball_y, 3, GetColor(255, 0, 0));
+
+	if (x_houkou == 0) {
+		ball_x = ball_x + ballspeed + kakudo;
+	}
+	else {
+		ball_x = ball_x - ballspeed - kakudo;
+	}
+
+	if (y_houkou == 0) {
+		ball_y = ball_y - ballspeed;
+	}
+
+	else {
+		ball_y = ball_y + ballspeed;
+	}
+
+	if (ball_x >= 640) {
+		x_houkou = 1;
+	}
+
+	if (ball_x <= 0) {
+		x_houkou = 0;
+	}
+
+	if (ball_y >= 480) {
+		y_houkou = 0;
+	}
+
+	if (ball_y <= 0) {
+		y_houkou = 1;
+	}
+}
+
+void atari(void) {
+
+	if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry && CheckHitKey(KEY_INPUT_G) > 0 && x_houkou == 0) {
+		y_houkou = 0;
+		kakudo -= 0.7;
+	}
+	else if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry && CheckHitKey(KEY_INPUT_G) > 0 && x_houkou == 1) {
+		y_houkou = 0;
+		kakudo += 0.7;
+	}
+	else if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry && CheckHitKey(KEY_INPUT_H) > 0 && x_houkou == 0) {
+		y_houkou = 0;
+		kakudo += 0.7;
+	}
+	else if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry && CheckHitKey(KEY_INPUT_H) > 0 && x_houkou == 1) {
+		y_houkou = 0;
+		kakudo -= 0.7;
+	}
+	else if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry) {
+		y_houkou = 0;
+	}
+}
+
+void mykey_R(void) {
+
+	if ((mybox_Rx + move) <= 640) {
+		if (CheckHitKey(KEY_INPUT_J) > 0) {
+			//jを押されたら右に動く
+			move += 5;
+		}
+	}
+}
+
+void speedkey_R(void) {
+
+	if ((mybox_Rx + move) <= 640) {
+		if (CheckHitKey(KEY_INPUT_K) > 0) {
+			//jを押されたら右に動く
+			move += 10;
+		}
+	}
+}
+
+void mykey_L(void) {
+
+	if ((mybox_Lx + move) >= 0) {
+		if (CheckHitKey(KEY_INPUT_F) > 0) {
+			//fを押されたら左に動く
+			move -= 5;
+		}
+	}
+}
+
+void speedkey_L(void) {
+
+	if ((mybox_Lx + move) >= 0) {
+		if (CheckHitKey(KEY_INPUT_D) > 0) {
+			//fを押されたら左に動く
+			move -= 10;
+		}
+	}
+}
+
+void brock1(void) {
+
+	if (ball_x >= 81 && ball_x <= 159 && ball_y <= 10 && ball_y >= 0 && y_houkou == 0 && in1 == 0) {
+		y_houkou = 1;
+		DrawBox(81, 0, 159, 10, GetColor(255, 0, 0), TRUE);
+		in1++;
+	}
+	else if (ball_x >= 81 && ball_x <= 159 && ball_y <= 10 && ball_y >= 0 && y_houkou == 1 && in1 == 0) {
+		y_houkou = 0;
+		DrawBox(81, 0, 159, 10, GetColor(255, 0, 0), TRUE);
+		in1++;
+	}
+	else if (in1 == 0) {
+		DrawBox(81, 0, 159, 10, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in1 >= 1) {
+		DrawBox(81, 0, 159, 10, GetColor(0, 0, 0), TRUE);
+	}
+
+}
+
+void brock2(void) {
+
+	if (ball_x >= 161 && ball_x <= 239 && ball_y <= 10 && ball_y >= 0 && y_houkou == 0 && in2 == 0) {
+		y_houkou = 1;
+		DrawBox(161, 0, 239, 10, GetColor(255, 0, 0), TRUE);
+		in2++;
+	}
+	else if (ball_x >= 161 && ball_x <= 239 && ball_y <= 10 && ball_y >= 0 && y_houkou == 1 && in2 == 0) {
+		y_houkou = 0;
+		DrawBox(161, 0, 239, 10, GetColor(255, 0, 0), TRUE);
+		in2++;
+	}
+	else if (in2 == 0) {
+		DrawBox(161, 0, 239, 10, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in2 >= 1) {
+		DrawBox(161, 0, 239, 10, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void brock3(void) {
+
+	if (ball_x >= 241 && ball_x <= 319 && ball_y <= 10 && ball_y >= 0 && y_houkou == 0 && in3 == 0) {
+		y_houkou = 1;
+		DrawBox(241, 0, 319, 10, GetColor(255, 0, 0), TRUE);
+		in3++;
+	}
+	else if (ball_x >= 241 && ball_x <= 319 && ball_y <= 10 && ball_y >= 0 && y_houkou == 1 && in3 == 0) {
+		y_houkou = 0;
+		DrawBox(241, 0, 319, 10, GetColor(255, 0, 0), TRUE);
+		in3++;
+	}
+	else if (in3 == 0) {
+		DrawBox(241, 0, 319, 10, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in3 >= 1) {
+		DrawBox(241, 0, 319, 10, GetColor(0, 0, 0), TRUE);
+	}
+
+}
+
+void brock4(void) {
+
+	if (ball_x >= 321 && ball_x <= 399 && ball_y <= 10 && ball_y >= 0 && y_houkou == 0 && in4 == 0) {
+		y_houkou = 1;
+		DrawBox(321, 0, 399, 10, GetColor(255, 0, 0), TRUE);
+		in4++;
+	}
+	else if (ball_x >= 321 && ball_x <= 399 && ball_y <= 10 && ball_y >= 0 && y_houkou == 1 && in4 == 0) {
+		y_houkou = 0;
+		DrawBox(321, 0, 399, 10, GetColor(255, 0, 0), TRUE);
+		in4++;
+	}
+	else if (in4 == 0) {
+		DrawBox(321, 0, 399, 10, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in4 >= 1) {
+		DrawBox(321, 0, 399, 10, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void brock5(void) {
+
+	if (ball_x >= 401 && ball_x <= 479 && ball_y <= 10 && ball_y >= 0 && y_houkou == 0 && in5 == 0) {
+		y_houkou = 1;
+		DrawBox(401, 0, 479, 10, GetColor(255, 0, 0), TRUE);
+		in5++;
+	}
+	else if (ball_x >= 401 && ball_x <= 479 && ball_y <= 10 && ball_y >= 0 && y_houkou == 1 && in5 == 0) {
+		y_houkou = 0;
+		DrawBox(401, 0, 479, 10, GetColor(255, 0, 0), TRUE);
+		in5++;
+	}
+	else if (in5 == 0) {
+		DrawBox(401, 0, 479, 10, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in5 >= 1) {
+		DrawBox(401, 0, 479, 10, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void brock6(void) {
+
+	if (ball_x >= 481 && ball_x <= 559 && ball_y <= 10 && ball_y >= 0 && y_houkou == 0 && in6 == 0) {
+		y_houkou = 1;
+		DrawBox(481, 0, 559, 10, GetColor(255, 0, 0), TRUE);
+		in6++;
+	}
+	else if (ball_x >= 481 && ball_x <= 559 && ball_y <= 10 && ball_y >= 0 && y_houkou == 1 && in6 == 0) {
+		y_houkou = 0;
+		DrawBox(481, 0, 559, 10, GetColor(255, 0, 0), TRUE);
+		in6++;
+	}
+	else if (in6 == 0) {
+		DrawBox(481, 0, 559, 10, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in6 >= 1) {
+		DrawBox(481, 0, 559, 10, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void brock9(void) {
+
+	if (ball_x >= 81 && ball_x <= 159 && ball_y <= 20 && ball_y >= 11 && y_houkou == 0 && in9 == 0) {
+		y_houkou = 1;
+		DrawBox(81, 11, 159, 20, GetColor(255, 0, 0), TRUE);
+		in9++;
+	}
+	else if (ball_x >= 81 && ball_x <= 159 && ball_y <= 20 && ball_y >= 11 && y_houkou == 1 && in9 == 0) {
+		y_houkou = 0;
+		DrawBox(81, 11, 159, 20, GetColor(255, 0, 0), TRUE);
+		in9++;
+	}
+	else if (in9 == 0) {
+		DrawBox(81, 11, 159, 20, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in9 >= 1) {
+		DrawBox(81, 11, 159, 20, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void brock10(void) {
+
+	if (ball_x >= 161 && ball_x <= 239 && ball_y <= 20 && ball_y >= 11 && y_houkou == 0 && in10 == 0) {
+		y_houkou = 1;
+		DrawBox(161, 11, 239, 20, GetColor(255, 0, 0), TRUE);
+		in10++;
+	}
+	else if (ball_x >= 161 && ball_x <= 239 && ball_y <= 20 && ball_y >= 11 && y_houkou == 1 && in10 == 0) {
+		y_houkou = 0;
+		DrawBox(161, 11, 239, 20, GetColor(255, 0, 0), TRUE);
+		in10++;
+	}
+	else if (in10 == 0) {
+		DrawBox(161, 11, 239, 20, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in10 >= 1) {
+		DrawBox(161, 11, 239, 20, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void brock11(void) {
+
+	if (ball_x >= 241 && ball_x <= 319 && ball_y <= 20 && ball_y >= 11 && y_houkou == 0 && in11 == 0) {
+		y_houkou = 1;
+		DrawBox(241, 6, 319, 10, GetColor(255, 0, 0), TRUE);
+		in11++;
+	}
+	else if (ball_x >= 241 && ball_x <= 319 && ball_y <= 20 && ball_y >= 11 && y_houkou == 1 && in11 == 0) {
+		y_houkou = 0;
+		DrawBox(241, 11, 319, 20, GetColor(255, 0, 0), TRUE);
+		in11++;
+	}
+	else if (in11 == 0) {
+		DrawBox(241, 11, 319, 20, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in11 >= 1) {
+		DrawBox(241, 11, 319, 20, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void brock12(void) {
+
+	if (ball_x >= 321 && ball_x <= 399 && ball_y <= 20 && ball_y >= 11 && y_houkou == 0 && in12 == 0) {
+		y_houkou = 1;
+		DrawBox(321, 11, 399, 20, GetColor(255, 0, 0), TRUE);
+		in12++;
+	}
+	else if (ball_x >= 321 && ball_x <= 399 && ball_y <= 20 && ball_y >= 11 && y_houkou == 1 && in12 == 0) {
+		y_houkou = 0;
+		DrawBox(321, 11, 399, 20, GetColor(255, 0, 0), TRUE);
+		in12++;
+	}
+	else if (in12 == 0) {
+		DrawBox(321, 11, 399, 20, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in12 >= 1) {
+		DrawBox(321, 11, 399, 20, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void brock13(void) {
+
+	if (ball_x >= 401 && ball_x <= 479 && ball_y <= 20 && ball_y >= 11 && y_houkou == 0 && in13 == 0) {
+		y_houkou = 1;
+		DrawBox(401, 11, 479, 20, GetColor(255, 0, 0), TRUE);
+		in13++;
+	}
+	else if (ball_x >= 401 && ball_x <= 479 && ball_y <= 20 && ball_y >= 11 && y_houkou == 1 && in13 == 0) {
+		y_houkou = 0;
+		DrawBox(401, 11, 479, 20, GetColor(255, 0, 0), TRUE);
+		in13++;
+	}
+	else if (in13 == 0) {
+		DrawBox(401, 11, 479, 20, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in13 >= 1) {
+		DrawBox(401, 11, 479, 20, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void brock14(void) {
+
+	if (ball_x >= 481 && ball_x <= 559 && ball_y <= 20 && ball_y >= 11 && y_houkou == 0 && in14 == 0) {
+		y_houkou = 1;
+		DrawBox(481, 11, 559, 20, GetColor(255, 0, 0), TRUE);
+		in14++;
+	}
+	else if (ball_x >= 481 && ball_x <= 559 && ball_y <= 20 && ball_y >= 11 && y_houkou == 1 && in14 == 0) {
+		y_houkou = 0;
+		DrawBox(481, 11, 559, 20, GetColor(255, 0, 0), TRUE);
+		in14++;
+	}
+	else if (in14 == 0) {
+		DrawBox(481, 11, 559, 20, GetColor(255, 0, 0), TRUE);
+	}
+	else if (in14 >= 1) {
+		DrawBox(481, 11, 559, 20, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void Hbrock(void) {
+
+	if (ball_x >= 80 && ball_x <= 159 && ball_y <= 30 && ball_y >= 21 && y_houkou == 0 && Hin == 0) {
+		y_houkou = 1;
+		DrawBox(80, 21, 159, 30, GetColor(0, 255, 0), TRUE);
+		Hin++;
+	}
+	else if (ball_x >= 80 && ball_x <= 159 && ball_y <= 30 && ball_y >= 21 && y_houkou == 1 && Hin == 0) {
+		y_houkou = 0;
+		DrawBox(80, 21, 159, 30, GetColor(0, 255, 0), TRUE);
+		Hin++;
+	}
+	else if (ball_x >= 80 && ball_x <= 159 && ball_y <= 30 && ball_y >= 21 && y_houkou == 0 && Hin == 1) {
+		y_houkou = 1;
+		DrawBox(80, 21, 159, 30, GetColor(255, 0, 0), TRUE);
+		Hin++;
+	}
+	else if (ball_x >= 80 && ball_x <= 159 && ball_y <= 30 && ball_y >= 21 && y_houkou == 1 && Hin == 1) {
+		y_houkou = 0;
+		DrawBox(80, 21, 159, 30, GetColor(255, 0, 0), TRUE);
+		Hin++;
+	}
+	else if (Hin == 0) {
+		DrawBox(80, 21, 159, 30, GetColor(0, 255, 0), TRUE);
+	}
+	else if (Hin == 1) {
+		DrawBox(80, 21, 159, 30, GetColor(255, 0, 0), TRUE);
+	}
+	else if (Hin == 2) {
+		DrawBox(80, 21, 159, 30, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void Hbrock1(void) {
+
+	if (ball_x >= 81 && ball_x <= 159 && ball_y <= 20 && ball_y >= 11 && y_houkou == 0 && Hin1 <= 1) {
+		y_houkou = 1;
+		DrawBox(81, 6, 159, 10, GetColor(0, 0, 255), TRUE);
+		Hin1++;
+	}
+	else if (ball_x >= 81 && ball_x <= 159 && ball_y <= 20 && ball_y >= 0 && y_houkou == 1 && Hin1 <= 1) {
+		y_houkou = 0;
+		DrawBox(81, 6, 159, 10, GetColor(0, 0, 255), TRUE);
+		in9++;
+	}
+	else if (in9 == 0) {
+		DrawBox(81, 6, 159, 10, GetColor(0, 0, 255), TRUE);
+	}
+	else if (in9 == 2) {
+		DrawBox(81, 6, 159, 10, GetColor(0, 0, 0), TRUE);
+	}
+}
+
+int all_get_key() {
+
+	char keys[256];
+	int i;
+	GetHitKeyStateAll(keys);
+
+	for (i = 0; i < 256; i++) {
+		if (keys[i] != 0) {
+			key[i]++;
+		}
+		else {
+			key[i] = 0;
+		}
+	}
+	return 0;
+}
