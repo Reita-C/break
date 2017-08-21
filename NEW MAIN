@@ -1,0 +1,267 @@
+/*
+*iを押すとスタート
+*jでバーが右に、fでバーが左に
+*kとdで素早く移動
+*hとgでボールがバーを反射する角度が変えられます
+*/
+#include "DxLib.h"
+#define mybox_Ly 430
+#define mybox_Ry 440
+
+
+void ball(void);
+void mybox(void);
+void atari(void);
+void mykey_R(void);
+void mykey_L(void);
+void speedkey_R(void);
+void speedkey_L(void);
+void brock(int x);
+void Hbrock(int x);
+
+ 
+int all_get_key(void);
+
+int in[16];
+int boxLx[16] = { 0, 81, 161, 241, 321, 401, 481, 561, 0, 81, 161, 241, 321, 401, 481, 561 };
+int boxLy[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 11, 11, 11, 11, 11, 11, 11, 11 };
+int boxRx[16] = { 80, 160, 240, 320, 400, 480, 560, 640, 80, 160, 240, 320, 400, 480, 560, 640 };
+int boxRy[16] = { 10, 10, 10 ,10 ,10 ,10 ,10 ,10 ,20 ,20 ,20 ,20 ,20 ,20 ,20 ,20 };
+int HboxLy[16] = { 21, 21, 21, 21, 21, 21, 21, 21, 31, 31, 31, 31, 31, 31, 31, 31 };
+int HboxRy[16] = { 30, 30, 30, 30, 30, 30, 30, 30, 40, 40, 40, 40, 40, 40, 40, 40 };
+int Hin[16];
+int key[256];
+int gamecount;
+double ball_x = 0;
+double ball_y = 430;
+int x_houkou = 0;
+int y_houkou = 0;
+int mybox_Lx = 0;
+int mybox_Rx = 60;
+int move;
+int a = 0;
+double ballspeed = 3;
+double kakudo = 0;
+int x_boxhoukou = 0;
+int y_boxhoukou = 0;
+
+
+int Color_White = GetColor(255, 255, 255);
+
+
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+
+	ChangeWindowMode(TRUE);
+	DxLib_Init();
+	SetDrawScreen(DX_SCREEN_BACK);
+
+	while (ScreenFlip() == 0 && ProcessMessage() == 0
+		&& ClearDrawScreen() == 0 && all_get_key() == 0 && CheckHitKey(KEY_INPUT_I) == 0) {
+
+		for (int i = 0; i < 16; i++) {	brock(i); }
+		for (int j = 0; j < 16; j++) { Hbrock(j); }
+		mybox();
+		mykey_R();
+		speedkey_R();
+		mykey_L();
+		speedkey_L();
+
+	}
+
+
+	while (ScreenFlip() == 0 && ProcessMessage() == 0
+		&& ClearDrawScreen() == 0 && all_get_key() == 0 /*&& ball_y < 480*/) {
+
+
+		ballspeed += 0.001;
+
+		mybox();
+		mykey_R();
+		speedkey_R();
+		mykey_L();
+		speedkey_L();
+		for (int i = 0; i < 16; i++) { brock(i); }
+		for (int j = 0; j < 16; j++) { Hbrock(j); }
+		atari();
+		ball();
+
+	}
+	WaitKey();
+	DxLib_End();
+	return 0;
+}
+
+void brock(int x) {
+
+	if (ball_x >= boxLx[x] && ball_x <= boxRx[x] && ball_y <= boxRy[x] && ball_y >= boxLy[x] && y_houkou == 0 && in[x] == 0) {
+		y_houkou = 1;
+		DrawBox(boxLx[x], boxLy[x], boxRx[x], boxRy[x], GetColor(255, 0, 0), TRUE);
+		in[x]++;
+	}
+	else if (ball_x >= boxLx[x] && ball_x <= boxRx[x] && ball_y == boxRy[x] && ball_y >= 0 && y_houkou == 1 && in[x] == 0) {
+		y_houkou = 0;
+		DrawBox(boxLx[x], boxLy[x], boxRx[x], boxRy[x], GetColor(255, 0, 0), TRUE);
+		in[x]++;
+	}
+	else if (in[x] == 0) {
+		DrawBox(boxLx[x], boxLy[x], boxRx[x], boxRy[x], GetColor(255, 0, 0), TRUE);
+	}
+	else {
+		DrawBox(boxLx[x], boxLy[x], boxRx[x], boxRy[x], GetColor(0, 0, 0), TRUE);
+	}
+}
+
+void mybox(void) {
+
+	DrawBox(mybox_Lx + move, mybox_Ly, mybox_Rx + move, mybox_Ry, GetColor(0, 255, 0), TRUE);
+
+}
+
+void ball(void) {
+
+	DrawCircle(ball_x, ball_y, 3, GetColor(255, 0, 0));
+
+	if (x_houkou == 0) {
+		ball_x = ball_x + ballspeed + kakudo;
+	}
+	else {
+		ball_x = ball_x - ballspeed - kakudo;
+	}
+
+	if (y_houkou == 0) {
+		ball_y = ball_y - ballspeed;
+	}
+
+	else {
+		ball_y = ball_y + ballspeed;
+	}
+
+	if (ball_x >= 640) {
+		x_houkou = 1;
+	}
+
+	if (ball_x <= 0) {
+		x_houkou = 0;
+	}
+
+	if (ball_y >= 480) {
+		y_houkou = 0;
+	}
+
+	if (ball_y <= 0) {
+		y_houkou = 1;
+	}
+}
+
+void atari(void) {
+
+	if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry && CheckHitKey(KEY_INPUT_G) > 0 && x_houkou == 0) {
+		y_houkou = 0;
+		kakudo -= 0.7;
+	}
+	else if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry && CheckHitKey(KEY_INPUT_G) > 0 && x_houkou == 1) {
+		y_houkou = 0;
+		kakudo += 0.7;
+	}
+	else if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry && CheckHitKey(KEY_INPUT_H) > 0 && x_houkou == 0) {
+		y_houkou = 0;
+		kakudo += 0.7;
+	}
+	else if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry && CheckHitKey(KEY_INPUT_H) > 0 && x_houkou == 1) {
+		y_houkou = 0;
+		kakudo -= 0.7;
+	}
+	else if (ball_x <= mybox_Rx + move && ball_x >= mybox_Lx + move && ball_y >= mybox_Ly && ball_y <= mybox_Ry) {
+		y_houkou = 0;
+	}
+}
+
+void mykey_R(void) {
+
+	if ((mybox_Rx + move) <= 640) {
+		if (CheckHitKey(KEY_INPUT_J) > 0) {
+			//jを押されたら右に動く
+			move += 5;
+		}
+	}
+}
+
+void speedkey_R(void) {
+
+	if ((mybox_Rx + move) <= 640) {
+		if (CheckHitKey(KEY_INPUT_K) > 0) {
+			//jを押されたら右に動く
+			move += 10;
+		}
+	}
+}
+
+void mykey_L(void) {
+
+	if ((mybox_Lx + move) >= 0) {
+		if (CheckHitKey(KEY_INPUT_F) > 0) {
+			//fを押されたら左に動く
+			move -= 5;
+		}
+	}
+}
+
+void speedkey_L(void) {
+
+	if ((mybox_Lx + move) >= 0) {
+		if (CheckHitKey(KEY_INPUT_D) > 0) {
+			//fを押されたら左に動く
+			move -= 10;
+		}
+	}
+}
+
+void Hbrock(int x) {
+
+	if (ball_x >= boxLx[x] && ball_x <= boxRx[x] && ball_y <= HboxRy[x] && ball_y >= HboxLy[x] && y_houkou == 0 && Hin[x] == 0) {
+		y_houkou = 1;
+		DrawBox(boxLx[x], HboxLy[x], boxRx[x], HboxRy[x], GetColor(0, 255, 0), TRUE);
+		Hin[x]++;
+	}
+	else if (ball_x >= boxLx[x] && ball_x <= boxRx[x] && ball_y <= HboxRy[x] && ball_y >= HboxLy[x] && y_houkou == 1 && Hin[x] == 0) {
+		y_houkou = 0;
+		DrawBox(boxLx[x], HboxLy[x], boxRx[x], HboxRy[x], GetColor(0, 255, 0), TRUE);
+		Hin[x]++;
+	}
+	else if (ball_x >= boxLx[x] && ball_x <= boxRx[x] && ball_y <= HboxRy[x] && ball_y >= HboxLy[x] && y_houkou == 0 && Hin[x] == 1) {
+		y_houkou = 1;
+		DrawBox(boxLx[x], HboxLy[x], boxRx[x], HboxRy[x], GetColor(255, 0, 0), TRUE);
+		Hin[x]++;
+	}
+	else if (ball_x >= boxLx[x] && ball_x <= boxRx[x] && ball_y <= HboxRy[x] && ball_y >= HboxLy[x] && y_houkou == 1 && Hin[x] == 1) {
+		y_houkou = 0;
+		DrawBox(boxLx[x], HboxLy[x], boxRx[x], HboxRy[x], GetColor(255, 0, 0), TRUE);
+		Hin[x]++;
+	}
+	else if (Hin[x] == 0) {
+		DrawBox(boxLx[x], HboxLy[x], boxRx[x], HboxRy[x], GetColor(0, 255, 0), TRUE);
+	}
+	else if (Hin[x] == 1) {
+		DrawBox(boxLx[x], HboxLy[x], boxRx[x], HboxRy[x], GetColor(255, 0, 0), TRUE);
+	}
+	else if (Hin[x] == 2) {
+		DrawBox(boxLx[x], HboxLy[x], boxRx[x], HboxRy[x], GetColor(0, 0, 0), TRUE);
+	}
+}
+
+int all_get_key() {
+
+	char keys[256];
+	int i;
+	GetHitKeyStateAll(keys);
+
+	for (i = 0; i < 256; i++) {
+		if (keys[i] != 0) {
+			key[i]++;
+		}
+		else {
+			key[i] = 0;
+		}
+	}
+	return 0;
+}
